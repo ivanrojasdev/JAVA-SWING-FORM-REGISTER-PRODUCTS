@@ -1,6 +1,7 @@
 package com.ivan.venta;
 
 import com.ivan.venta.utils.Validations;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -10,10 +11,13 @@ public class FrmRegistroProducto extends javax.swing.JFrame {
 
     DefaultTableModel model = new DefaultTableModel();
     List<Product> products = new ArrayList<Product>();
+    DecimalFormat df ;
 
     public FrmRegistroProducto() {
         initComponents();
+        df = new DecimalFormat("0.00");
         this.setLocationRelativeTo(null);
+        txtCode.setText("P00001");
         fillProductType();
         fillTableHeader();
         tblProducts.setModel(model);
@@ -74,6 +78,8 @@ public class FrmRegistroProducto extends javax.swing.JFrame {
             }
         });
         jScrollPane1.setViewportView(tblProducts);
+
+        txtCode.setEditable(false);
 
         jLabel3.setFont(new java.awt.Font("Segoe UI", 0, 13)); // NOI18N
         jLabel3.setText("Producto:");
@@ -209,10 +215,13 @@ public class FrmRegistroProducto extends javax.swing.JFrame {
         Product p = searchProduct(getCode());
         if (p == null) {
             if (validateFields()) {
+                
                 p = new Product(getCode(), getProductName(), getProductType(), getStock(), getPrice());
+                System.out.println(p);
                 products.add(p);
                 fillTableData();
-                clearTextBox(); 
+                clearTextBox();  
+                txtCode.setText(generateCode2());
             }
         } else {
             messageError("El codigo ya existe");
@@ -231,6 +240,7 @@ public class FrmRegistroProducto extends javax.swing.JFrame {
                         p.setPrice(getPrice());
                         fillTableData();
                         clearTextBox();
+                        txtCode.setText(generateCode2());
                     } else {
                         messageError("Producto no encontrado");
                     }
@@ -352,7 +362,6 @@ public class FrmRegistroProducto extends javax.swing.JFrame {
     }
 
     public void clearTextBox() {
-        txtCode.setText("");
         txtProductName.setText("");
         cboProductType.setSelectedIndex(0);
         txtStock.setText("");
@@ -363,18 +372,29 @@ public class FrmRegistroProducto extends javax.swing.JFrame {
     public void fillTableData() {
         model.setRowCount(0);
         for (Product product : products) {
-            Object data[] = {product.getCode(), product.getName(), product.getType(), product.getStock(), product.getPrice()};
+            Object data[] = {product.getCode(), product.getName(), product.getType(), product.getStock(), df.format(product.getPrice())};
             model.addRow(data);
         }
     }
 
-    public Product searchProduct(String name) {
+    public Product searchProduct(String code) {
         for (Product p : products) {
-            if (p.getName().toUpperCase().equals(name.toUpperCase()) || p.getCode().equals(name)) {
+            if (p.getCode().equals(code)) {
                 return p;
             }
         }
         return null;
+    }
+    
+     public String generateCode2() {
+        DecimalFormat df = new DecimalFormat("00000");
+        String code ="";
+        if (products.size() == 0) {
+            return "P00001";
+        } else {
+            code = String.valueOf(products.get(products.size() - 1).getCode()) ;
+        }
+        return "P" + df.format(Integer.parseInt(code.substring(1, code.length())) + 1); 
     }
 
     public boolean validateFields() {

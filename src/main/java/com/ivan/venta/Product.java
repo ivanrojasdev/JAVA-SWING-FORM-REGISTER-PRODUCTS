@@ -4,6 +4,8 @@
  */
 package com.ivan.venta;
 
+import java.text.DecimalFormat;
+
 /**
  *
  * @author Administrador
@@ -15,6 +17,8 @@ public class Product {
     private int Stock;
     private double price;
     
+    private static int contador = 0;
+    
     public Product(){}
 
     public Product(String code, String name, String type, int Stock, double price) {
@@ -23,6 +27,16 @@ public class Product {
         this.type = type;
         this.Stock = Stock;
         this.price = price;
+        contador++;
+    }
+    
+    public String generateCode() {
+        DecimalFormat df = new DecimalFormat("00000");
+        if (contador == 0) {
+            return "P00001";
+        } else {
+            return "P" + df.format(Integer.parseInt(code.substring(1, code.length())) + 1);         
+        }
     }
     
     public String getCode() {
